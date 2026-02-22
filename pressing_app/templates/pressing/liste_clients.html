@@ -1,0 +1,81 @@
+{% extends "pressing/index.html" %}
+
+{% block title %}Liste des clients - Pressing App{% endblock %}
+
+{% block content %}
+<form method="POST">
+    {% csrf_token %}   
+    <input type="text" name="searchInput" placeholder="Rechercher un client par nom, téléphone...">
+    <button id="searchButton" type="submit">🔍 Rechercher</button>
+</form>
+
+{% if erreur %}
+    <div class="error-message">
+        <h2>⚠️ {{ erreur }}</h2>
+    </div>
+{% elif client %}
+    <h2>📋 Résultats de la recherche</h2>
+    <table id="find">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Téléphone</th>
+                <th>Email</th>
+                <th>Adresse</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in client %}
+            <tr>
+                <td>{{ c.nom }}</td>
+                <td>{{ c.telephone }}</td>
+                <td>{{ c.email }}</td>
+                <td>{{ c.adresse }}</td>
+                <td><a href="{% url 'modifier_client' c.id %}">Modifier</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+
+<h1>👥 Liste des clients</h1>
+
+{% if clients %}
+<table>
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Nom</th>
+            <th>Téléphone</th>
+            <th>Email</th>
+            <th>Adresse</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for client in clients %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ client.nom }}</td>
+            <td>{{ client.telephone }}</td>
+            <td>{{ client.email }}</td>
+            <td>{{ client.adresse }}</td>
+            <td>
+                <a href="{% url 'modifier_client' client.pk %}">✏️ Modifier</a>
+                <a href="{% url 'supprimer_client' client.pk %}" 
+                   onclick="return confirm('Voulez-vous vraiment supprimer définitivement ce client ?');"
+                   style="background: var(--error); color: white;">🗑️ Supprimer</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p style="text-align: center; padding: 2rem; color: var(--gray-400);">Aucun client enregistré.</p>
+{% endif %}
+
+<div style="margin-top: var(--spacing-lg); display: flex; gap: 1rem; flex-wrap: wrap;">
+    <a href="{% url 'creer_client' %}">➕ Ajouter un client</a>
+</div>
+{% endblock %}

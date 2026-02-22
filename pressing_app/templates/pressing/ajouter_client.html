@@ -1,0 +1,16 @@
+{% extends "pressing/index.html" %}
+
+{% block title %}Ajouter un client - Pressing App{% endblock %}
+
+{% block content %}
+<h1>➕ Ajouter un nouveau client</h1>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <div style="display: flex; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap;">
+        <button type="submit">💾 Enregistrer le client</button>
+        <a href="{% url 'enregistrer_commande' %}" style="background: var(--gray-200); color: var(--gray-700);">⬅ Retour à la commande</a>
+    </div>
+</form>
+{% endblock %}

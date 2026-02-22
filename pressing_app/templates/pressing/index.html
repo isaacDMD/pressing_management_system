@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Application de gestion de pressing moderne et professionnelle">
+    
+    <!-- Lien vers le fichier CSS -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'pressing/css/style.css' %}">
+    
+    {% block script %}{% endblock %}
+    
+    <title>{% block title %}Pressing App{% endblock %}</title>
+</head>
+<body>
+    <!-- Barre de navigation -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="{% url 'acceuil' %}" class="navbar-brand">
+                <span class="brand-icon">🧺</span>
+                <span class="brand-text">Pressing App</span>
+            </a>
+            
+            <button class="navbar-toggle" id="navbarToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            
+            <div class="navbar-menu" id="navbarMenu">
+                <a href="{% url 'acceuil' %}" class="nav-link">
+                    <span class="nav-icon">🏠</span>
+                    <span>Accueil</span>
+                </a>
+                <a href="{% url 'statistiques' %}" class="nav-link">
+                    <span class="nav-icon">📊</span>
+                    <span>Statistiques</span>
+                </a>
+                <a href="{% url 'enregistrer_commande' %}" class="nav-link">
+                    <span class="nav-icon">➕</span>
+                    <span>Nouvelle commande</span>
+                </a>
+                <a href="{% url 'liste_clients' %}" class="nav-link">
+                    <span class="nav-icon">👥</span>
+                    <span>Clients</span>
+                </a>
+                <a href="{% url 'liste_vetements' %}" class="nav-link">
+                    <span class="nav-icon">👔</span>
+                    <span>Vêtements</span>
+                </a>
+                <a href="{% url 'ajouter_sortie' %}" class="nav-link">
+                    <span class="nav-icon">💰</span>
+                    <span>Sorties</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Contenu principal -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Footer -->
+    <footer>
+        <p>© 2026 Pressing App. Tous droits réservés.</p>
+    </footer>
+
+    <!-- Script pour le menu mobile -->
+    <script>
+        document.getElementById('navbarToggle').addEventListener('click', function() {
+            document.getElementById('navbarMenu').classList.toggle('active');
+            this.classList.toggle('active');
+        });
+
+        // Fermer le menu mobile quand on clique sur un lien
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function() {
+                document.getElementById('navbarMenu').classList.remove('active');
+                document.getElementById('navbarToggle').classList.remove('active');
+            });
+        });
+    </script>
+</body>
+</html>

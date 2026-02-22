@@ -1,0 +1,270 @@
+{% extends "pressing/index.html" %}
+{% load static %}
+
+{% block title %}Accueil - Pressing App{% endblock %}
+
+{% block content %}
+<!-- Formulaire de recherche -->
+<form method="POST">
+    {% csrf_token %}   
+    <input type="text" name="searchInput" placeholder="Rechercher une commande par numéro ou nom de client...">
+    <button id="searchButton" type="submit">🔍 Rechercher</button>
+</form>
+
+<!-- Titre principal -->
+<h1>Tableau de bord</h1>
+
+    <!-- Message d'erreur -->
+    {% if erreur %}
+        <div class="error-message">
+            <h2>⚠️ {{ erreur }}</h2>
+        </div>
+    
+    <!-- Résultats de recherche -->
+    {% elif commande %}
+        <h2>📋 Résultats de la recherche</h2>
+        <table id="find">
+            <thead>
+                <tr>
+                    <th>Client</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in commande %}
+                <tr>
+                    <td>{{ c.client }}</td>
+                    <td>{{ c.total }} FCFA</td>
+                    <td class="status-{{ c.status|lower }}">{{ c.status }}</td>
+                    <td><a href="{% url 'modifier_commande' c.id %}">Modifier le statut</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    
+    <!-- Vue principale avec filtre -->
+    {% elif not commande %}
+        <div style="margin-bottom: var(--spacing-xl);">
+            <label for="choix">Filtrer les commandes</label>
+            <select name="choix" id="choix"> 
+                <option value="A">🗓️ Aujourd'hui</option>
+                <option value="M">📅 Ce mois</option>
+                <option value="T">📊 Toutes les commandes</option>
+            </select>
+        </div>
+
+        <div id="table-container">
+            <!-- Table des commandes du jour -->
+            <h2>Commandes</h2>
+            <table id="table-jour">
+                <thead>
+                    <tr>
+                        <th>Client</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in commandes_du_jour %}
+                    <tr>
+                        <td>{{ c.client }}</td>
+                        <td>{{ c.total }} FCFA</td>
+                        <td class="status-{{ c.status|lower }}">{{ c.status }}</td>
+                        <td><a href="{% url 'modifier_commande' c.id %}">Modifier le statut</a></td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4">Aucune commande aujourd'hui</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- Table des commandes du mois -->
+            <table id="table-mois" style="display:none;">
+                <thead>
+                    <tr>
+                        <th>Client</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in commande_du_mois %}
+                    <tr>
+                        <td>{{ c.client }}</td>
+                        <td>{{ c.total }} FCFA</td>
+                        <td class="status-{{ c.status|lower }}">{{ c.status }}</td>
+                        <td><a href="{% url 'modifier_commande' c.id %}">Modifier le statut</a></td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4">Aucune commande ce mois</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- Table de toutes les commandes -->
+            <table id="table-tout" style="display:none;">
+                <thead>
+                    <tr>
+                        <th>Client</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in Commandes %}
+                    <tr>
+                        <td>{{ c.client }}</td>
+                        <td>{{ c.total }} FCFA</td>
+                        <td class="status-{{ c.status|lower }}">{{ c.status }}</td>
+                        <td><a href="{% url 'modifier_commande' c.id %}">Modifier le statut</a></td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4">Aucune commande</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            
+            <div style="margin-top: var(--spacing-xl);">
+                <a href="{% url 'enregistrer_commande' %}">➕ Enregistrer une nouvelle commande</a>
+            </div>
+
+            <!-- Tables des sorties -->
+            <h2 style="margin-top: var(--spacing-2xl);">Sorties</h2>
+            
+            <table id="table-S-Jour" style="display:none;">
+                <thead>
+                    <tr>
+                        <th>Description</th>
+                        <th>Montant</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in sorties_du_jour %}
+                    <tr>
+                        <td>{{ s.description }}</td>
+                        <td>{{ s.montant }} FCFA</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="2">Aucune sortie aujourd'hui</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <table id="table-S-Mois" style="display:none;">
+                <thead>
+                    <tr>
+                        <th>Description</th>
+                        <th>Montant</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in sortie_du_mois %}
+                    <tr>
+                        <td>{{ s.description }}</td>
+                        <td>{{ s.montant }} FCFA</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="2">Aucune sortie ce mois</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <table id="table-S-tout" style="display:none;">
+                <thead>
+                    <tr>
+                        <th>Description</th>
+                        <th>Montant</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in all_Sorties %}
+                    <tr>
+                        <td>{{ s.description }}</td>
+                        <td>{{ s.montant }} FCFA</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="2">Aucune sortie</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            
+            <div style="margin-top: var(--spacing-xl);">
+                <a href="{% url 'ajouter_sortie' %}">➕ Ajouter une sortie</a>
+            </div>
+        </div>
+
+        <!-- Menu d'actions -->
+        <h2 style="margin-top: var(--spacing-2xl);">Actions rapides</h2>
+        <ul>
+            <li>
+                <a href="{% url 'creer_client' %}">➕ Ajouter un client</a>
+            </li>
+            <li>
+                <a href="{% url 'creer_vetement' %}">➕ Ajouter un vêtement</a>
+            </li>
+            <li>
+                <a href="{% url 'liste_clients' %}">📋 Liste des clients</a>
+            </li>
+            <li>
+                <a href="{% url 'liste_vetements' %}">📋 Liste des vêtements</a>
+            </li>        
+        </ul>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const select = document.getElementById("choix");
+
+    const tableJour  = document.getElementById("table-jour");
+    const tableMois  = document.getElementById("table-mois");
+    const tableTout  = document.getElementById("table-tout");
+
+    const tableSJour = document.getElementById("table-S-Jour");
+    const tableSMois = document.getElementById("table-S-Mois");
+    const tableSTout = document.getElementById("table-S-tout");
+
+    function cacherTout() {
+        tableJour.style.display  = "none";
+        tableMois.style.display  = "none";
+        tableTout.style.display  = "none";
+        tableSJour.style.display = "none";
+        tableSMois.style.display = "none";
+        tableSTout.style.display = "none";
+    }
+
+    function afficher(valeur) {
+        cacherTout();
+
+        if (valeur === "A") {
+            tableJour.style.display  = "table";
+            tableSJour.style.display = "table";
+        } 
+        else if (valeur === "M") {
+            tableMois.style.display  = "table";
+            tableSMois.style.display = "table";
+        } 
+        else if (valeur === "T") {
+            tableTout.style.display  = "table";
+            tableSTout.style.display = "table";
+        }
+    }
+
+    // AU CHARGEMENT
+    const stock = localStorage.getItem("stock") || "A";
+    select.value = stock;
+    afficher(stock);
+
+    // AU CHANGEMENT
+    select.addEventListener("change", function () {
+        localStorage.setItem("stock", this.value);
+        afficher(this.value);
+    });
+});
+</script>
+{% endblock %}

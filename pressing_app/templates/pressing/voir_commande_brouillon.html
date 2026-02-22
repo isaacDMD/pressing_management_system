@@ -1,0 +1,7 @@
+{% if commande.details.count == 0 %}
+    <button disabled>Terminer la commande</button>
+{% else %}
+    <a href="{% url 'recap_details' commande.id %}">Terminer la commande</a>
+{% endif %}
+
+<a href="{% url 'ajouter_detail' commande.id %}">Ajouter un détail</a>

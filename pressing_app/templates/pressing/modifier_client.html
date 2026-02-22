@@ -1,0 +1,13 @@
+{% extends "pressing/index.html" %}
+
+{% block title %}Modifier Client{% endblock %}
+
+{% block content %}
+<h2>Modifier le client : {{ client.nom }}</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Enregistrer les modifications</button>
+</form>
+<a href="{% url 'liste_clients' %}">⬅ Retour à la liste des clients</a>
+{% endblock %}

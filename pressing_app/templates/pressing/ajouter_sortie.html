@@ -1,0 +1,18 @@
+{% extends "pressing/index.html" %}
+{% load static %}
+
+{% block title %}Ajouter une sortie{% endblock %}
+
+{% block content %}
+
+<h1>Ajouter une dépense</h1>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">💾 Enregistrer la dépense</button>
+</form>
+
+<a href="{% url 'acceuil' %}">⬅️ Retour à l'acceuil</a>
+
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "pressing/index.html" %}
+
+{% block title %}Modifier Commande{% endblock %}
+
+{% block content %}
+
+<h1>Modifier Commande</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-success">Enregistrer les modifications</button>
+</form>
+
+{% endblock %}

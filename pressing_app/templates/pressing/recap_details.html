@@ -1,0 +1,44 @@
+{% extends "pressing/index.html" %}
+{% load static %}
+
+{% block title %}Recapitulation{% endblock %}
+
+{% block content %}
+
+
+<h2>Récapitulatif de la commande</h2>
+
+<p><strong>Client :</strong> {{ commande.client }}</p>
+<p><strong>Date :</strong> {{ commande.date }}</p>
+<p><strong>Total :</strong> {{ commande.total }} FCFA</p>
+
+<hr>
+
+<h3>Détails</h3>
+
+<table>
+  <tr>
+    <th>Vêtement</th>
+    <th>Quantité</th>
+    <th>Sous-total</th>
+  </tr>
+
+  {% for d in details %}
+  <tr>
+    <td>{{ d.vetement }}</td>
+    <td>{{ d.quantite }}</td>
+    <td>{{ d.montant }}</td>
+  </tr>
+  {% empty %}
+  <tr>
+    <td colspan="4">Aucun détail ajouté</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<hr>
+
+<a href="{% url 'ajouter_detail' commande.id %}">➕ Ajouter un détail</a>
+<a href="{% url 'modifier_commande' commande.id %}">✏️ Modifier la commande / appliquer une remise</a>
+<a href="{% url 'acceuil' %}">Terminer</a>
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends "pressing/index.html" %}
+{% load static %}
+
+{% block title %}Ajouter un Détail{% endblock %}
+
+{% block content %}
+<h1>Ajouter un détail à la commande {{ commande.id }}</h1>
+
+<form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <button type="button" id="btnNouveauVetement">
+        + Nouveau vêtement
+    </button>
+
+    <div id="formVetement" style="display:none; margin-top:10px;">
+        <input type="text" id="vetement_nom" placeholder="Nom du vêtement">
+        <input type="number" id="prix_repassage" placeholder="Prix repassage">
+        <input type="number" id="prix_lavage_repassage" placeholder="Prix lavage + repassage">
+
+        <button type="button" id="btnSaveVetement">
+            Enregistrer le vêtement
+        </button>
+    </div>
+
+    <br><br>
+
+    <button type="submit" name="ajouter_autre">
+        Ajouter ce détail
+    </button>
+
+    {% if not commande.details.count %}
+        <button disabled>Terminer la commande</button>
+    {% else %}
+        <a href="{% url 'recap_details' commande.id %}">
+            Terminer la commande
+        </a>
+    {% endif %}
+</form>
+
+<hr>
+
+<h2>Détails déjà ajoutés :</h2>
+
+{% if commande.details.count %}
+<ul>
+    {% for detail in commande.details.all %}
+        <li>
+            {{ detail.vetement }} -
+            {{ detail.option }} -
+            Quantité: {{ detail.quantite }} -
+            Montant: {{ detail.montant }}
+        </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>Aucun détail ajouté pour l'instant.</p>
+{% endif %}
+{% endblock %}
+
+{% block script %}
+<script src="{% static 'js/ajouter_detail.js' %}"></script>
+<script>
+    const AJAX_AJOUTER_VETEMENT_URL = "{% url 'ajax_ajouter_vetement' %}";
+</script>
+{% endblock %}

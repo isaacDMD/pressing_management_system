@@ -1,0 +1,442 @@
+{% extends "pressing/index.html" %}
+{% load static %}
+
+{% block title %}Statistiques - Pressing App{% endblock %}
+
+{% block script %}
+<!-- Chart.js pour les graphiques -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<h1>📊 Tableau de bord & Statistiques</h1>
+
+<!-- Cartes de statistiques rapides -->
+<div class="stats-cards">
+    <div class="stat-card card-blue">
+        <div class="stat-icon">👥</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ total_clients }}</div>
+            <div class="stat-label">Clients</div>
+        </div>
+    </div>
+    
+    <div class="stat-card card-green">
+        <div class="stat-icon">📦</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ total_commandes }}</div>
+            <div class="stat-label">Commandes</div>
+        </div>
+    </div>
+    
+    <div class="stat-card card-purple">
+        <div class="stat-icon">👔</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ total_vetements }}</div>
+            <div class="stat-label">Vêtements</div>
+        </div>
+    </div>
+    
+    <div class="stat-card card-amber">
+        <div class="stat-icon">💰</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ benefice_mois|floatformat:0 }}</div>
+            <div class="stat-label">Bénéfice (mois)</div>
+        </div>
+    </div>
+</div>
+
+<!-- Section: Clients les plus fidèles -->
+<div class="stats-section">
+    <h2>🏆 Clients les plus fidèles</h2>
+    
+    <div class="stats-grid">
+        <!-- Client du mois -->
+        <div class="stats-box">
+            <h3>Client du mois</h3>
+            {% if client_mois %}
+            <div class="client-highlight">
+                <div class="client-name">{{ client_mois.client__nom }}</div>
+                <div class="client-detail">{{ client_mois.client__telephone }}</div>
+                <div class="client-stat">{{ client_mois.nombre_commandes }} commande(s)</div>
+            </div>
+            {% else %}
+            <p class="no-data">Aucune commande ce mois</p>
+            {% endif %}
+        </div>
+        
+        <!-- Client de l'année -->
+        <div class="stats-box">
+            <h3>Client de l'année</h3>
+            {% if client_annee %}
+            <div class="client-highlight">
+                <div class="client-name">{{ client_annee.client__nom }}</div>
+                <div class="client-detail">{{ client_annee.client__telephone }}</div>
+                <div class="client-stat">{{ client_annee.nombre_commandes }} commande(s)</div>
+            </div>
+            {% else %}
+            <p class="no-data">Aucune commande cette année</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Top 5 clients -->
+    <div class="stats-box" style="margin-top: 1.5rem;">
+        <h3>Top 5 clients de tous les temps</h3>
+        {% if top_clients %}
+        <table class="stats-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Client</th>
+                    <th>Téléphone</th>
+                    <th>Commandes</th>
+                    <th>Total dépensé</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for client in top_clients %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td><strong>{{ client.client__nom }}</strong></td>
+                    <td>{{ client.client__telephone }}</td>
+                    <td><span class="badge badge-blue">{{ client.nombre_commandes }}</span></td>
+                    <td><strong>{{ client.total_depense|floatformat:0 }} FCFA</strong></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="no-data">Aucun client enregistré</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Section: Vêtements populaires -->
+<div class="stats-section">
+    <h2>👔 Vêtements les plus apportés</h2>
+    
+    <div class="stats-grid">
+        <!-- Vêtements lavage -->
+        <div class="stats-box">
+            <h3>Top lavage + repassage</h3>
+            {% if vetements_lavage %}
+            <div class="chart-container">
+                <canvas id="chartVetementsLavage"></canvas>
+            </div>
+            <div class="vetements-list">
+                {% for v in vetements_lavage|slice:":5" %}
+                <div class="vetement-item">
+                    <span class="vetement-name">{{ v.vetement__nom }}</span>
+                    <span class="vetement-count">{{ v.total_quantite }} pièces</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="no-data">Aucune donnée</p>
+            {% endif %}
+        </div>
+        
+        <!-- Vêtements repassage -->
+        <div class="stats-box">
+            <h3>Top repassage uniquement</h3>
+            {% if vetements_repassage %}
+            <div class="vetements-list">
+                {% for v in vetements_repassage|slice:":10" %}
+                <div class="vetement-item">
+                    <span class="vetement-name">{{ forloop.counter }}. {{ v.vetement__nom }}</span>
+                    <span class="vetement-count">{{ v.total_quantite }} pièces</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="no-data">Aucune donnée</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Section: Finances -->
+<div class="stats-section">
+    <h2>💰 Rapport financier</h2>
+    
+    <div class="stats-grid">
+        <!-- Rapport du mois -->
+        <div class="stats-box">
+            <h3>Ce mois</h3>
+            <div class="finance-summary">
+                <div class="finance-item finance-entree">
+                    <span class="finance-label">Entrées</span>
+                    <span class="finance-value">{{ entrees_mois|floatformat:0 }} FCFA</span>
+                </div>
+                <div class="finance-item finance-sortie">
+                    <span class="finance-label">Sorties</span>
+                    <span class="finance-value">{{ sorties_mois|floatformat:0 }} FCFA</span>
+                </div>
+                <hr>
+                <div class="finance-item finance-benefice {% if benefice_mois < 0 %}finance-deficit{% endif %}">
+                    <span class="finance-label">{% if benefice_mois >= 0 %}Bénéfice{% else %}Déficit{% endif %}</span>
+                    <span class="finance-value">{{ benefice_mois|floatformat:0 }} FCFA</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Rapport de l'année -->
+        <div class="stats-box">
+            <h3>Cette année</h3>
+            <div class="finance-summary">
+                <div class="finance-item finance-entree">
+                    <span class="finance-label">Entrées</span>
+                    <span class="finance-value">{{ entrees_annee|floatformat:0 }} FCFA</span>
+                </div>
+                <div class="finance-item finance-sortie">
+                    <span class="finance-label">Sorties</span>
+                    <span class="finance-value">{{ sorties_annee|floatformat:0 }} FCFA</span>
+                </div>
+                <hr>
+                <div class="finance-item finance-benefice {% if benefice_annee < 0 %}finance-deficit{% endif %}">
+                    <span class="finance-label">{% if benefice_annee >= 0 %}Bénéfice{% else %}Déficit{% endif %}</span>
+                    <span class="finance-value">{{ benefice_annee|floatformat:0 }} FCFA</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Graphique camembert entrées/sorties -->
+    <div class="stats-box" style="margin-top: 1.5rem;">
+        <h3>Répartition financière du mois</h3>
+        <div class="chart-container" style="max-width: 400px; margin: 0 auto;">
+            <canvas id="chartEntreesSorties"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Section: Évolution sur 12 mois -->
+<div class="stats-section">
+    <h2>📈 Évolution sur 12 mois</h2>
+    
+    <div class="stats-box">
+        <div class="chart-container" style="height: 400px;">
+            <canvas id="chartEvolution"></canvas>
+        </div>
+    </div>
+    
+    <!-- Tableau détaillé -->
+    <div class="stats-box" style="margin-top: 1.5rem;">
+        <h3>Détails mensuels</h3>
+        <table class="stats-table">
+            <thead>
+                <tr>
+                    <th>Mois</th>
+                    <th>Entrées</th>
+                    <th>Sorties</th>
+                    <th>Bénéfice</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for mois in evolution_mensuelle %}
+                <tr>
+                    <td><strong>{{ mois.mois }}</strong></td>
+                    <td class="text-success">{{ mois.entrees|floatformat:0 }} FCFA</td>
+                    <td class="text-danger">{{ mois.sorties|floatformat:0 }} FCFA</td>
+                    <td class="{% if mois.benefice >= 0 %}text-success{% else %}text-danger{% endif %}">
+                        <strong>{{ mois.benefice|floatformat:0 }} FCFA</strong>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Section: État des commandes -->
+<div class="stats-section">
+    <h2>📦 État des commandes</h2>
+    
+    <div class="stats-grid">
+        <div class="stats-box">
+            <div class="status-item status-pending">
+                <span class="status-label">En cours</span>
+                <span class="status-value">{{ commandes_en_cours }}</span>
+            </div>
+        </div>
+        
+        <div class="stats-box">
+            <div class="status-item status-completed">
+                <span class="status-label">Terminées</span>
+                <span class="status-value">{{ commandes_terminees }}</span>
+            </div>
+        </div>
+        
+        <div class="stats-box">
+            <div class="status-item status-delivered">
+                <span class="status-label">Livrées</span>
+                <span class="status-value">{{ commandes_livrees }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Configuration des graphiques Chart.js
+const chartColors = {
+    blue: 'rgb(37, 99, 235)',
+    green: 'rgb(16, 185, 129)',
+    red: 'rgb(239, 68, 68)',
+    amber: 'rgb(245, 158, 11)',
+    purple: 'rgb(139, 92, 246)',
+    teal: 'rgb(20, 184, 166)',
+};
+
+// ========================================
+// Graphique: Évolution sur 12 mois
+// ========================================
+const evolutionData = {{ graph_evolution|safe }};
+
+const ctxEvolution = document.getElementById('chartEvolution').getContext('2d');
+new Chart(ctxEvolution, {
+    type: 'line',
+    data: {
+        labels: evolutionData.labels,
+        datasets: [
+            {
+                label: 'Entrées',
+                data: evolutionData.entrees,
+                borderColor: chartColors.green,
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                borderWidth: 3,
+                tension: 0.4,
+                fill: true
+            },
+            {
+                label: 'Sorties',
+                data: evolutionData.sorties,
+                borderColor: chartColors.red,
+                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                borderWidth: 3,
+                tension: 0.4,
+                fill: true
+            },
+            {
+                label: 'Bénéfice',
+                data: evolutionData.benefices,
+                borderColor: chartColors.blue,
+                backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                borderWidth: 3,
+                tension: 0.4,
+                fill: true
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'top',
+            },
+            title: {
+                display: true,
+                text: 'Évolution financière sur 12 mois',
+                font: {
+                    size: 16,
+                    weight: 'bold'
+                }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return value.toLocaleString() + ' FCFA';
+                    }
+                }
+            }
+        }
+    }
+});
+
+// ========================================
+// Graphique: Vêtements lavage (Bar)
+// ========================================
+const vetementsData = {{ graph_vetements_lavage|safe }};
+
+if (vetementsData.labels.length > 0) {
+    const ctxVetements = document.getElementById('chartVetementsLavage').getContext('2d');
+    new Chart(ctxVetements, {
+        type: 'bar',
+        data: {
+            labels: vetementsData.labels,
+            datasets: [{
+                label: 'Nombre de pièces',
+                data: vetementsData.data,
+                backgroundColor: [
+                    chartColors.blue,
+                    chartColors.teal,
+                    chartColors.green,
+                    chartColors.amber,
+                    chartColors.purple,
+                    chartColors.red,
+                ],
+                borderWidth: 0,
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+// ========================================
+// Graphique: Entrées/Sorties (Doughnut)
+// ========================================
+const financesData = {{ graph_entrees_sorties_mois|safe }};
+
+const ctxFinances = document.getElementById('chartEntreesSorties').getContext('2d');
+new Chart(ctxFinances, {
+    type: 'doughnut',
+    data: {
+        labels: financesData.labels,
+        datasets: [{
+            data: financesData.data,
+            backgroundColor: [
+                chartColors.green,
+                chartColors.red,
+                chartColors.blue
+            ],
+            borderWidth: 0
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: {
+                position: 'bottom',
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return context.label + ': ' + context.parsed.toLocaleString() + ' FCFA';
+                    }
+                }
+            }
+        }
+    }
+});
+</script>
+
+{% endblock %}

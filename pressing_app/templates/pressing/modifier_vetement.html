@@ -1,0 +1,13 @@
+{% extends "pressing/index.html" %}
+
+{% block title %}Modifier Vêtement{% endblock %}
+
+{% block content %}
+<h2>Modifier le vêtement : {{ vetement.nom }}</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Enregistrer les modifications</button>
+</form>
+<a href="{% url 'liste_vetements' %}">⬅ Retour à la liste des vêtements</a>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends "pressing/index.html" %}
+
+{% block title %}Liste des vêtements - Pressing App{% endblock %}
+
+{% block content %}
+<form method="POST">
+    {% csrf_token %}   
+    <input type="text" name="searchInput" placeholder="Rechercher un vêtement...">
+    <button id="searchButton" type="submit">🔍 Rechercher</button>
+</form>
+
+{% if erreur %}
+    <div class="error-message">
+        <h2>⚠️ {{ erreur }}</h2>
+    </div>
+{% elif vetement %}
+    <h2>📋 Résultats de la recherche</h2>
+    <table id="find">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Prix repassage</th>
+                <th>Prix lavage + repassage</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for v in vetement %}
+            <tr>
+                <td>{{ v.nom }}</td>
+                <td>{{ v.prix_repassage }} FCFA</td>
+                <td>{{ v.prix_lavage_repassage }} FCFA</td>
+                <td><a href="{% url 'modifier_vetement' v.id %}">Modifier</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+
+<h1>👔 Liste des vêtements</h1>
+
+{% if vetements %}
+<table>
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Nom</th>
+            <th>Prix repassage</th>
+            <th>Prix lavage + repassage</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for vetement in vetements %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ vetement.nom }}</td>
+            <td>{{ vetement.prix_repassage }} FCFA</td>
+            <td>{{ vetement.prix_lavage_repassage }} FCFA</td>
+            <td>
+                <a href="{% url 'modifier_vetement' vetement.pk %}">✏️ Modifier</a>
+                <a href="{% url 'supprimer_vetement' vetement.pk %}" 
+                   onclick="return confirm('Voulez-vous vraiment supprimer définitivement ce vêtement ?');"
+                   style="background: var(--error); color: white;">🗑️ Supprimer</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p style="text-align: center; padding: 2rem; color: var(--gray-400);">Aucun vêtement enregistré.</p>
+{% endif %}
+
+<div style="margin-top: var(--spacing-lg); display: flex; gap: 1rem; flex-wrap: wrap;">
+    <a href="{% url 'creer_vetement' %}">➕ Ajouter un vêtement</a>
+</div>
+{% endblock %}
